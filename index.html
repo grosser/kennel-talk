@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kennel</title>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Lucida Grande", sans-serif;
+    }
+
+    /* make slides and background not have gap between them */
+    .remark-slide-scaler {
+      -webkit-box-shadow: none;
+    }
+
+    /* make slides and background blend in */
+    .remark-container {
+      background: #272822;
+    }
+
+    .remark-code, .remark-inline-code {
+      font-family: 'Monaco', monospace;
+    }
+
+    .remark-slide-content {
+      background: #272822;
+      color: white;
+      text-shadow: 0 0 20px #333;
+      font-size: 30px;
+      line-height: 2;
+    }
+
+    .remark-slide-content pre {
+      text-shadow: none;
+    }
+
+    .remark-slide-content h1 {
+      font-size: 50px;
+    }
+
+    .remark-slide-number {
+      display: none;
+    }
+
+    .table th, .table td {
+      padding: 5px 10px;
+      text-align: right;
+    }
+
+    .remark-notes {
+      font-size: 40px;
+    }
+
+    .remark-notes-preview {
+      font-size: 30px;
+    }
+  </style>
+</head>
+<body>
+<textarea id="source">
+  class: center, middle
+
+  # Kennel
+
+  <img width="230" src="assets/cage.jpg"/>
+
+  &nbsp;
+
+  ???
+
+  - library to manage datadog monitors/slos/dashes as code
+
+  ---
+
+  # Michael Grosser
+
+  Senior Staff Engineer @ Zendesk<br/>
+
+  <table>
+    <tr>
+      <td><img width="230" src="assets/Avatar.png"/></td>
+      <td>&nbsp;&nbsp;</td>
+      <td style="vertical-align: top">
+        rubygems.org grosser<br/>
+        github.com/grosser<br/>
+        twitter.com/grosser<br/>
+        grosser.it
+      </td>
+    </tr>
+  </table>
+
+  ???
+
+  - job: build infrastructure to make other devs more efficient
+
+  ---
+
+  # Why Kennel ?
+
+  ???
+
+  ---
+
+  # Why Kennel ?
+
+  - Documented, reusable, and searchable
+
+  ???
+
+  able to change everything globally
+
+  ---
+
+  # Why Kennel ?
+
+  - Documented, reusable, and searchable
+  - Changes are PR reviewed and auditable
+
+  ???
+
+  ---
+
+  # Why Kennel ?
+
+  - Documented, reusable, and searchable
+  - Changes are PR reviewed and auditable
+  - Updating shows diff before applying
+
+  ???
+
+  ---
+
+  # Why Kennel ?
+
+  - Documented, reusable, and searchable
+  - Changes are PR reviewed and auditable
+  - Updating shows diff before applying
+  - Automated import of existing monitors/dashboards/slos
+
+  ???
+
+  ---
+
+  # Update
+
+  <img width="800" src="assets/screen.png"/>
+
+  ???
+
+  - compares api with local state
+  - says what will change
+  - applies
+
+  ---
+
+  # Code
+
+  <!-- see code/project.rb -->
+  ```Ruby
+  class Foo < Kennel::Models::Project
+    defaults(
+      tags: -> { ["priority:high"] + super() },
+      team: -> { Teams::Bar.new },
+      parts: -> {
+        [
+          Monitors::NotReady.new(self),
+          Monitors::KubernetesCpuOverRequest.new(self),
+        ]
+      }
+    )
+  end
+  ```
+
+  ???
+
+  - monitors and slos are grouped by project and belong to a team
+  - they inherit tags from their project and team
+  - NotReady is a reusable monitor we share for all ... checks for kubernetes pods that are in trouble
+  - ruby: everything is a class and can be inherited and extended
+
+  ---
+
+  # Interoperable
+
+  - does not require to manage everything with kennel
+  - cleans up after itself
+  - no hardcoded ids
+
+  ---
+
+  # Flow
+
+  ???
+
+  - development process
+
+  ---
+
+  # Flow
+
+  - import or create a new monitor
+
+  ???
+
+  ---
+
+  # Flow
+
+  - import or create a new monitor
+  - `rake kennel:update_datadog`
+
+  ???
+
+  - try ... auto-reverted
+
+  ---
+
+  # Flow
+
+  - import or create a new monitor
+  - `rake kennel:update_datadog`
+  - make a PR
+
+  ???
+
+  - diff will be visible
+
+  ---
+
+  # Flow
+
+  - import or create a new monitor
+  - `rake kennel:update_datadog`
+  - make a PR
+  - merge to apply
+
+  ???
+
+  ---
+
+  # Custom logic
+
+  <!-- see code/hack.rb -->
+  ```Ruby
+  Kennel::Models::Monitor.prepend(Module.new do
+    def validate_json(data)
+      super
+      message = data.fetch(:message)
+      return if !message.include?("@pagerduty")
+      data[:name] += "📟" # mark them consistently
+      return if message.include?("Runbook: ")
+      invalid! "message must include a Runbook"
+    end
+  end)
+  ```
+
+  ???
+
+  - ensure all pagerduty monitors have a runbook
+  - mark them consistently with an emoji
+
+  ---
+
+  # 🔄 Recap
+
+  - keep config in git for reuse and audits
+  - apply global policies / inherit tags and escalation from teams
+
+</textarea>
+<script src="assets/remark-latest.min.js">
+</script>
+<script>
+  remark.create(
+    {
+      ratio: '4:3',
+      highlightLanguage: 'ruby'
+    }
+  );
+</script>
+</body>
+</html>
