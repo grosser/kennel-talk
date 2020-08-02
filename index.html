@@ -69,6 +69,7 @@
   ???
 
   - library to manage datadog monitors/slos/dashes as code
+  - full history / PR review / search / reuse
 
   ---
 
@@ -182,9 +183,8 @@
 
   # Interoperable
 
-  - does not require to manage everything with kennel
-  - cleans up after itself
-  - no hardcoded ids
+  - can be used by single team/project
+  - can be used with other tools
 
   ---
 
@@ -240,6 +240,14 @@
 
   # Custom logic
 
+  ???
+
+  - built in ruby, can modify core logic
+
+  ---
+
+  # Custom logic
+
   <!-- see code/hack.rb -->
   ```Ruby
   Kennel::Models::Monitor.prepend(Module.new do
@@ -248,8 +256,9 @@
       message = data.fetch(:message)
       return if !message.include?("@pagerduty")
       data[:name] += "📟" # mark them consistently
-      return if message.include?("Runbook: ")
-      invalid! "message must include a Runbook"
+      if !message.include?("Runbook: ")
+        invalid! "message must include a Runbook"
+      end
     end
   end)
   ```
@@ -263,8 +272,51 @@
 
   # 🔄 Recap
 
-  - keep config in git for reuse and audits
-  - apply global policies / inherit tags and escalation from teams
+  - config in code for reuse
+
+  ???
+
+  Don't say recap, just start
+
+  ---
+
+  # 🔄 Recap
+
+  - config in code for reuse
+  - config in git for auditing
+
+  ???
+
+  ---
+
+  # 🔄 Recap
+
+  - config in code for reuse
+  - config in git for auditing
+  - inherit tags and escalation from teams
+
+  ---
+
+  # 🔄 Recap
+
+  - config in code for reuse
+  - config in git for auditing
+  - inherit tags and escalation from teams
+  - enforces policies
+
+  ---
+
+  # 🔄 Recap
+
+  - config in code for reuse
+  - config in git for auditing
+  - inherit tags and escalation from teams
+  - enforces policies
+  - github.com/grosser/kennel
+
+  ???
+
+  template repo to get started
 
 </textarea>
 <script src="assets/remark-latest.min.js">
